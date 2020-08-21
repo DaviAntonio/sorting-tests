@@ -1,0 +1,15 @@
+# Ignore files that match the following patterns
+
+# Vim swap files
+*.swp
+
+# Log files
+*.log
+
+# Object files
+*.o
+*.obj
+*.elf
+
+# Linker files
+*.map
