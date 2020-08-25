@@ -4,7 +4,23 @@
 #include <time.h>
 #include "selection_sort.h"
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
 #define ITEMS_NUM (200000)
+
+struct timed_test {
+	char name[256];
+	void (*fp)(int *v, size_t l, size_t r);
+	int *input;
+	size_t input_l;
+	size_t input_r;
+	int *output;
+	int *expected;
+	size_t data_size;
+	size_t elem_size;
+	int status;
+	struct timespec time;
+};
 
 void timespec_diff(struct timespec *a, struct timespec *b, struct timespec *r)
 {
@@ -41,7 +57,7 @@ int cmp_ints(const void *i1, const void *i2)
 int allocate_int_arrays(int ***arr, size_t alen, size_t len)
 {
 	for (size_t i = 0; i < alen; i++) {
-		*arr[i] = calloc(sizeof(int *), len);
+		*arr[i] = calloc(sizeof(**arr), len);
 		if (*arr[i] == NULL)
 			return -1;
 	}
@@ -58,6 +74,48 @@ void deallocate_int_arrays(int ***arr, size_t alen)
 	}
 }
 
+int run_timed_test(struct timed_test *t)
+{
+	struct timespec tic, toc;
+
+	if (t->name == NULL || t->fp == NULL || t->input == NULL || t->output == NULL
+			|| t->expected == NULL || t->elem_size == 0)
+		return -1;
+
+#ifdef DBGPRINT
+	printf("\nBefore initialisation\n");
+	for (size_t i = 0; i < t->data_size/t->elem_size; i++)
+		printf("input[%lu]=%d\toutput[%lu]=%d\texpected[%lu]=%d\n",
+				i, t->input[i], i, t->output[i], i, t->expected[i]);
+#endif
+
+	fprintf(stderr, "Initialising test: %s\n", t->name);
+	memcpy(t->output, t->input, t->data_size);
+	fprintf(stderr, "Starting test: %s\n", t->name);
+
+#ifdef DBGPRINT
+	printf("\nAfter initialisation\n");
+	for (size_t i = 0; i < t->data_size/t->elem_size; i++)
+		printf("input[%lu]=%d\toutput[%lu]=%d\texpected[%lu]=%d\n",
+				i, t->input[i], i, t->output[i], i, t->expected[i]);
+#endif
+
+	clock_gettime(CLOCK_MONOTONIC, &tic);
+	t->fp(t->output, t->input_l, t->input_r);
+	clock_gettime(CLOCK_MONOTONIC, &toc);
+
+	timespec_diff(&toc, &tic, &t->time);
+	t->status = memcmp(t->expected, t->output, t->data_size);
+
+#ifdef DBGPRINT
+	printf("\nResult\n");
+	for (size_t i = 0; i < t->data_size/t->elem_size; i++)
+		printf("input[%lu]=%d\toutput[%lu]=%d\texpected[%lu]=%d\n",
+				i, t->input[i], i, t->output[i], i, t->expected[i]);
+#endif
+	return 0;
+}
+
 int main()
 {
 	int *random_data = NULL;
@@ -66,15 +124,12 @@ int main()
 	int *recursive = NULL;
 	int *iterative = NULL;
 
-	int **arrays[5] = {&random_data, &ordered, &reverse, &recursive, &iterative};
-
-	struct timespec tic, toc;
-	float msdiff;
+	int **arrays[] = {&random_data, &ordered, &reverse, &recursive, &iterative};
 
 	// Allocate all
-	if (allocate_int_arrays(arrays, 5, ITEMS_NUM)) {
+	if (allocate_int_arrays(arrays, ARRAY_SIZE(arrays), ITEMS_NUM)) {
 		printf("Allocation failure\n");
-		deallocate_int_arrays(arrays, 5);
+		deallocate_int_arrays(arrays, ARRAY_SIZE(arrays));
 		return -1;
 	}
 
@@ -89,11 +144,11 @@ int main()
 	}
 
 	printf("initialising\n");
-	memcpy(ordered, random_data, ITEMS_NUM*sizeof(int));
+	memcpy(ordered, random_data, sizeof(*ordered)*ITEMS_NUM);
 
 	printf("sorting\n");
-	// order the array using standard functions
-	qsort(ordered, ITEMS_NUM, sizeof(int), cmp_ints);
+	// sort the array using standard functions
+	qsort(ordered, ITEMS_NUM, sizeof(*ordered), cmp_ints);
 
 	printf("reversing\n");
 	// reverse the sorted array
@@ -104,51 +159,69 @@ int main()
 #endif
 	}
 
-	// check
-	printf("initialising iterative random\n");
-	memcpy(iterative, random_data, ITEMS_NUM*sizeof(int));
-	clock_gettime(CLOCK_MONOTONIC, &tic);
-	selection_sort(iterative, 0, ITEMS_NUM-1);
-	clock_gettime(CLOCK_MONOTONIC, &toc);
-	msdiff = 1e3f*timespecdiff_f(&toc, &tic);
-	if (!memcmp(iterative, ordered, ITEMS_NUM*sizeof(int)))
-		printf("Iterative random (%f ms) OK\n", msdiff);
-	else
-		printf("Iterative random (%f ms) FAIL\n", msdiff);
+	struct timed_test tests[] = {
+		{
+			.name = "Selection Sort Iterative Random",
+			.fp = selection_sort,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Selection Sort Recursive Random",
+			.fp = selection_sort_rec,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = recursive,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Selection Sort Iterative Reverse",
+			.fp = selection_sort,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Selection Sort Recursive Reverse",
+			.fp = selection_sort_rec,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = recursive,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		}
+	};
 
-	printf("initialising recursive random\n");
-	memcpy(recursive, random_data, ITEMS_NUM*sizeof(int));
-	clock_gettime(CLOCK_MONOTONIC, &tic);
-	selection_sort_rec(recursive, 0, ITEMS_NUM-1);
-	clock_gettime(CLOCK_MONOTONIC, &toc);
-	msdiff = 1e3f*timespecdiff_f(&toc, &tic);
-	if (!memcmp(recursive, ordered, ITEMS_NUM*sizeof(int)))
-		printf("Recursive random (%f ms) OK\n", msdiff);
-	else
-		printf("Recursive random (%f ms) FAIL\n", msdiff);
+	for (size_t i = 0; i < ARRAY_SIZE(tests); i++) {
+		int status = run_timed_test(&tests[i]);
+		char test_success[] = "OK";
+		char test_fail[] = "FAIL";
+		char *test_status;
+		if (status) {
+			fprintf(stderr, "Test failed with status: %d\n", status);
+		} else {
+			test_status = (tests[i].status) ? test_fail : test_success;
+			printf("%s (%f ms) %s\n", tests[i].name,
+					1e3f*(tests[i].time.tv_sec +
+					tests[i].time.tv_nsec/1e9f), test_status);
+		}
+	}
 
-	printf("initialising iterative reverse\n");
-	memcpy(iterative, reverse, ITEMS_NUM*sizeof(int));
-	clock_gettime(CLOCK_MONOTONIC, &tic);
-	selection_sort(iterative, 0, ITEMS_NUM-1);
-	clock_gettime(CLOCK_MONOTONIC, &toc);
-	msdiff = 1e3f*timespecdiff_f(&toc, &tic);
-	if (!memcmp(iterative, ordered, ITEMS_NUM*sizeof(int)))
-		printf("Iterative reverse (%f ms) OK\n", msdiff);
-	else
-		printf("Iterative reverse (%f ms) FAIL\n", msdiff);
+	deallocate_int_arrays(arrays, ARRAY_SIZE(arrays));
 
-	printf("initialising recursive reverse\n");
-	memcpy(recursive, reverse, ITEMS_NUM*sizeof(int));
-	clock_gettime(CLOCK_MONOTONIC, &tic);
-	selection_sort_rec(recursive, 0, ITEMS_NUM-1);
-	clock_gettime(CLOCK_MONOTONIC, &toc);
-	msdiff = 1e3f*timespecdiff_f(&toc, &tic);
-	if (!memcmp(recursive, ordered, ITEMS_NUM*sizeof(int)))
-		printf("Recursive reverse (%f ms) OK\n", msdiff);
-	else
-		printf("Recursive reverse (%f ms) FAIL\n", msdiff);
-
-	deallocate_int_arrays(arrays, 5);
 	return 0;
 }
