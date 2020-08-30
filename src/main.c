@@ -226,7 +226,30 @@ int main()
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Bubble Sort Recursive Random",
+			.fp = bubble_sort_rec,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Bubble Sort Recursive Reverse",
+			.fp = bubble_sort_rec,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
 		}
+
 	};
 
 	for (size_t i = 0; i < ARRAY_SIZE(tests); i++) {

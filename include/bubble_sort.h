@@ -12,4 +12,7 @@
 /* Iterative bubble sort on array [l, r] */
 void bubble_sort(ITEM *v, size_t l, size_t r);
 
+/* Recursive bubble sort on array [l, r] */
+void bubble_sort_rec(ITEM *v, size_t l, size_t r);
+
 #endif
