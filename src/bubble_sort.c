@@ -34,3 +34,19 @@ void bubble_sort_optim(ITEM *v, size_t l, size_t r)
 		}
 	}
 }
+
+void bubble_sort_optim2(ITEM *v, size_t l, size_t r)
+{
+	size_t nr = r;
+
+	while (r > l) {
+		nr = l;
+		for (size_t i = l+1; i <= r; i++) {
+			if (LESS(v[i], v[i-1])) {
+				EXCH(v[i], v[i-1]);
+				nr = i;
+			}
+		}
+		r = nr;
+	}
+}

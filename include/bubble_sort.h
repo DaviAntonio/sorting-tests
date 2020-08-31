@@ -16,7 +16,14 @@ void bubble_sort(ITEM *v, size_t l, size_t r);
 void bubble_sort_rec(ITEM *v, size_t l, size_t r);
 
 /* Iterative optimised bubble sort on array [l, r]
- * Changes the nested loops for one loop and a flag */
+ * The nested for loops are replaced by one for one loop and a while loop with
+ * a flag */
 void bubble_sort_optim(ITEM *v, size_t l, size_t r);
+
+/* Iterative optimised bubble sort on array [l, r]
+ * Bubble sort will always place one or more elements in the correct place in
+ * the array in each iteration. This implementation avoids the evaluation of
+ * elements that were already sorted in their correct places */
+void bubble_sort_optim2(ITEM *v, size_t l, size_t r);
 
 #endif
