@@ -15,4 +15,8 @@ void bubble_sort(ITEM *v, size_t l, size_t r);
 /* Recursive bubble sort on array [l, r] */
 void bubble_sort_rec(ITEM *v, size_t l, size_t r);
 
+/* Iterative optimised bubble sort on array [l, r]
+ * Changes the nested loops for one loop and a flag */
+void bubble_sort_optim(ITEM *v, size_t l, size_t r);
+
 #endif
