@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include "selection_sort.h"
+#include "bubble_sort.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -200,6 +201,94 @@ int main()
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
 			.output = recursive,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Bubble Sort Iterative Random",
+			.fp = bubble_sort,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Bubble Sort Iterative Reverse",
+			.fp = bubble_sort,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Bubble Sort Recursive Random",
+			.fp = bubble_sort_rec,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Bubble Sort Recursive Reverse",
+			.fp = bubble_sort_rec,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Bubble Sort Iterative (no nested for loops) Random",
+			.fp = bubble_sort_optim,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Bubble Sort Iterative (no nested for loops) Reverse",
+			.fp = bubble_sort_optim,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Bubble Sort Optimised Iterative Random",
+			.fp = bubble_sort_optim2,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Bubble Sort Optimised Iterative Reverse",
+			.fp = bubble_sort_optim2,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
