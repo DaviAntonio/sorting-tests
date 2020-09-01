@@ -5,6 +5,7 @@
 #include "selection_sort.h"
 #include "bubble_sort.h"
 #include "shell_sort.h"
+#include "insertion_sort.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -308,6 +309,28 @@ int main()
 		{
 			.name = "Shell Sort Iterative (h=3*h+1) Reverse",
 			.fp = shell_sort,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Insertion Sort Iterative Random",
+			.fp = insertion_sort,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Insertion Sort Iterative Reverse",
+			.fp = insertion_sort,
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
