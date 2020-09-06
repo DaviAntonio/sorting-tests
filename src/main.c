@@ -338,6 +338,28 @@ int main()
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Insertion Sort Iterative (pivot) Random",
+			.fp = insertion_sort_pivot,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Insertion Sort Iterative (pivot) Reverse",
+			.fp = insertion_sort_pivot,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
 		}
 	};
 

@@ -12,4 +12,7 @@
 /* Add iterative insertion sort [l, r] */
 void insertion_sort(ITEM *v, size_t l, size_t r);
 
+/* Add iterative insertion sort with pivot [l, r] */
+void insertion_sort_pivot(ITEM *v, size_t l, size_t r);
+
 #endif
