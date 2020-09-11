@@ -6,6 +6,7 @@
 #include "bubble_sort.h"
 #include "shell_sort.h"
 #include "insertion_sort.h"
+#include "quicksort.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -353,6 +354,72 @@ int main()
 		{
 			.name = "Insertion Sort Iterative (pivot) Reverse",
 			.fp = insertion_sort_pivot,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Quicksort Recursive Random",
+			.fp = quicksort,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Quicksort Recursive Reverse",
+			.fp = quicksort,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Quicksort (Median 3) Recursive Random",
+			.fp = quicksort_median_3,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Quicksort (Median 3) Recursive Reverse",
+			.fp = quicksort_median_3,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Quicksort (Median 3 shortest tail) Recursive Random",
+			.fp = quicksort_median_3_short,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Quicksort (Median 3 shortest tail) Recursive Reverse",
+			.fp = quicksort_median_3_short,
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
