@@ -13,4 +13,7 @@
 /* Simple quicksort on array [l, r] */
 void quicksort(ITEM *v, size_t l, size_t r);
 
+/* Median of 3 quicksort on array [l, r] */
+void quicksort_median_3(ITEM *v, size_t l, size_t r);
+
 #endif
