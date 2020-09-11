@@ -41,3 +41,25 @@ void quicksort_median_3(ITEM *v, size_t l, size_t r)
 	if (j > 0) quicksort_median_3(v, l, j - 1);
 	quicksort_median_3(v, j + 1, r);
 }
+
+void quicksort_median_3_short(ITEM *v, size_t l, size_t r)
+{
+	while (l < r) {
+		// Send the median of 3 to the end of the array
+		size_t m = l + ((r - l) >> 1);
+		LESS_SWAP(v[r], v[m]);
+		LESS_SWAP(v[m], v[l]);
+		LESS_SWAP(v[m], v[r]);
+
+		size_t j = partition(v, l, r);
+
+		// Follow the shortest tail
+		if (j - l < r - j) {
+			if (j > 0) quicksort_median_3_short(v, l, j - 1);
+			l = j + 1;
+		} else {
+			quicksort_median_3_short(v, j + 1, r);
+			if (j > 0) r = j - 1;
+		}
+	}
+}

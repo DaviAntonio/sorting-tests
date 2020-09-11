@@ -405,6 +405,28 @@ int main()
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Quicksort (Median 3 shortest tail) Recursive Random",
+			.fp = quicksort_median_3_short,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Quicksort (Median 3 shortest tail) Recursive Reverse",
+			.fp = quicksort_median_3_short,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM-1,
+			.output = iterative,
+			.expected = ordered,
+			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
 		}
 	};
 
