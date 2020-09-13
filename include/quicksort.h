@@ -3,20 +3,13 @@
 
 #include <stddef.h>
 
-#define ITEM int
-#define KEY(A) (A)
-#define LESS(A, B) (KEY(A) < KEY(B))
-#define LESSEQ(x, y) (KEY(x) <= KEY(y))
-#define SWAP(x, y) do {ITEM t = x; x = y; y = t;} while (0)
-#define LESS_SWAP(x, y) do {if (LESS(x, y)) SWAP(x, y);} while (0)
-
 /* Simple quicksort on array [l, r] */
-void quicksort(ITEM *v, size_t l, size_t r);
+void quicksort(void *vin, size_t l, size_t r);
 
 /* Median of 3 quicksort on array [l, r] */
-void quicksort_median_3(ITEM *v, size_t l, size_t r);
+void quicksort_median_3(void *vin, size_t l, size_t r);
 
 /* Median of 3 quicksort with shortest tail optimisation on array [l, r] */
-void quicksort_median_3_short(ITEM *v, size_t l, size_t r);
+void quicksort_median_3_short(void *vin, size_t l, size_t r);
 
 #endif

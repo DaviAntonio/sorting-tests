@@ -14,7 +14,7 @@
 
 struct timed_test {
 	char name[256];
-	void (*fp)(int *v, size_t l, size_t r);
+	void (*fp)(void *v, size_t l, size_t r);
 	int *input;
 	size_t input_l;
 	size_t input_r;

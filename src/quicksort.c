@@ -1,8 +1,10 @@
 #include "quicksort.h"
+#include "int_arrays_sorting_macros.h"
 
 /* Partition function according to Cormen */
-static size_t partition(ITEM *v, size_t l, size_t r)
+static size_t partition(void *vin, size_t l, size_t r)
 {
+	ITEM *v = vin;
 	/** Pivot element */
 	ITEM c = v[r];
 
@@ -21,35 +23,38 @@ static size_t partition(ITEM *v, size_t l, size_t r)
 	return j;
 }
 
-void quicksort(ITEM *v, size_t l, size_t r)
+void quicksort(void *vin, size_t l, size_t r)
 {
 	if (r <= l) return;
+	ITEM *v = vin;
 	size_t j = partition(v, l, r);
 	if (j > 0) quicksort(v, l, j - 1);
 	quicksort(v, j + 1, r);
 }
 
-void quicksort_median_3(ITEM *v, size_t l, size_t r)
+void quicksort_median_3(void *vin, size_t l, size_t r)
 {
 	if (r <= l) return;
+	ITEM *v = vin;
 	// Send the median of 3 to the end of the array
 	size_t m = l + ((r - l) >> 1);
-	LESS_SWAP(v[r], v[m]);
-	LESS_SWAP(v[m], v[l]);
-	LESS_SWAP(v[m], v[r]);
+	SWAP_LESS(v[r], v[m]);
+	SWAP_LESS(v[m], v[l]);
+	SWAP_LESS(v[m], v[r]);
 	size_t j = partition(v, l, r);
 	if (j > 0) quicksort_median_3(v, l, j - 1);
 	quicksort_median_3(v, j + 1, r);
 }
 
-void quicksort_median_3_short(ITEM *v, size_t l, size_t r)
+void quicksort_median_3_short(void *vin, size_t l, size_t r)
 {
+	ITEM *v = vin;
 	while (l < r) {
 		// Send the median of 3 to the end of the array
 		size_t m = l + ((r - l) >> 1);
-		LESS_SWAP(v[r], v[m]);
-		LESS_SWAP(v[m], v[l]);
-		LESS_SWAP(v[m], v[r]);
+		SWAP_LESS(v[r], v[m]);
+		SWAP_LESS(v[m], v[l]);
+		SWAP_LESS(v[m], v[r]);
 
 		size_t j = partition(v, l, r);
 

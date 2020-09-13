@@ -3,16 +3,10 @@
 
 #include <stddef.h>
 
-#define ITEM int
-#define KEY(A) (A)
-#define LESS(A, B) (KEY(A) < KEY(B))
-#define EXCH(A, B) do{ITEM t = A; A = B; B = t;}while(0)
-#define CMPEXCH(A, B) do{if (LESS(A, B)) EXCH(A, B);}while(0)
-
 /* Add iterative insertion sort [l, r] */
-void insertion_sort(ITEM *v, size_t l, size_t r);
+void insertion_sort(void *vin, size_t l, size_t r);
 
 /* Add iterative insertion sort with pivot [l, r] */
-void insertion_sort_pivot(ITEM *v, size_t l, size_t r);
+void insertion_sort_pivot(void *vin, size_t l, size_t r);
 
 #endif
