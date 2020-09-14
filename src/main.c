@@ -23,10 +23,8 @@ int main()
 	int *random_data = NULL;
 	int *ordered = NULL;
 	int *reverse = NULL;
-	int *recursive = NULL;
-	int *iterative = NULL;
 
-	int **arrays[] = {&random_data, &ordered, &reverse, &recursive, &iterative};
+	int **arrays[] = {&random_data, &ordered, &reverse};
 
 	// Allocate all
 	if (allocate_int_arrays(arrays, ARRAY_SIZE(arrays), ITEMS_NUM)) {
@@ -68,7 +66,6 @@ int main()
 			.input = random_data,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*random_data)*ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
@@ -79,7 +76,6 @@ int main()
 			.input = random_data,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = recursive,
 			.expected = ordered,
 			.data_size = sizeof(*random_data)*ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
@@ -90,7 +86,6 @@ int main()
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
@@ -101,7 +96,6 @@ int main()
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = recursive,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
@@ -112,7 +106,6 @@ int main()
 			.input = random_data,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*random_data)*ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
@@ -123,7 +116,6 @@ int main()
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
@@ -134,7 +126,6 @@ int main()
 			.input = random_data,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*random_data)*ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
@@ -145,7 +136,6 @@ int main()
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
@@ -156,7 +146,6 @@ int main()
 			.input = random_data,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*random_data)*ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
@@ -167,7 +156,6 @@ int main()
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
@@ -178,7 +166,6 @@ int main()
 			.input = random_data,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*random_data)*ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
@@ -189,7 +176,6 @@ int main()
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
@@ -200,7 +186,6 @@ int main()
 			.input = random_data,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*random_data)*ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
@@ -211,7 +196,6 @@ int main()
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
@@ -222,7 +206,6 @@ int main()
 			.input = random_data,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*random_data)*ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
@@ -233,7 +216,6 @@ int main()
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
@@ -244,7 +226,6 @@ int main()
 			.input = random_data,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*random_data)*ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
@@ -255,7 +236,6 @@ int main()
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
@@ -266,7 +246,6 @@ int main()
 			.input = random_data,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*random_data)*ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
@@ -277,7 +256,6 @@ int main()
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
@@ -288,7 +266,6 @@ int main()
 			.input = random_data,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*random_data)*ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
@@ -299,7 +276,6 @@ int main()
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
@@ -310,7 +286,6 @@ int main()
 			.input = random_data,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*random_data)*ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
@@ -321,7 +296,6 @@ int main()
 			.input = reverse,
 			.input_l = 0,
 			.input_r = ITEMS_NUM-1,
-			.output = iterative,
 			.expected = ordered,
 			.data_size = sizeof(*reverse)*ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
