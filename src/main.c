@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include "tester.h"
+#include "memory_manager.h"
 #include "selection_sort.h"
 #include "bubble_sort.h"
 #include "shell_sort.h"
@@ -12,112 +13,9 @@
 
 #define ITEMS_NUM (200000)
 
-struct timed_test {
-	char name[256];
-	void (*fp)(void *v, size_t l, size_t r);
-	int *input;
-	size_t input_l;
-	size_t input_r;
-	int *output;
-	int *expected;
-	size_t data_size;
-	size_t elem_size;
-	int status;
-	struct timespec time;
-};
-
-void timespec_diff(struct timespec *a, struct timespec *b, struct timespec *r)
-{
-	// from timersub macro on glibc/time/sys/time.h
-	r->tv_sec = a->tv_sec - b->tv_sec;
-	r->tv_nsec = a->tv_nsec - b->tv_nsec;
-	// tv_nsec counts the ns elapsed since the last second
-	if (r->tv_nsec < 0) {
-		--r->tv_sec;
-		r->tv_nsec += 1000000000L;
-	}
-}
-
-double timespecdiff(struct timespec *a, struct timespec *b)
-{
-	struct timespec r;
-	timespec_diff(a, b, &r);
-	return r.tv_sec + r.tv_nsec/1e9;
-}
-
-float timespecdiff_f(struct timespec *a, struct timespec *b)
-{
-	struct timespec r;
-	timespec_diff(a, b, &r);
-	return r.tv_sec + r.tv_nsec/1e9f;
-}
-
-
 int cmp_ints(const void *i1, const void *i2)
 {
 	return (*(int *)i1)-(*(int *)i2);
-}
-
-int allocate_int_arrays(int ***arr, size_t alen, size_t len)
-{
-	for (size_t i = 0; i < alen; i++) {
-		*arr[i] = calloc(sizeof(**arr), len);
-		if (*arr[i] == NULL)
-			return -1;
-	}
-	return 0;
-}
-
-void deallocate_int_arrays(int ***arr, size_t alen)
-{
-	for (size_t i = 0; i < alen; i++) {
-		if (*arr[i] != NULL) {
-			free(*arr[i]);
-			*arr[i] = NULL;
-		}
-	}
-}
-
-int run_timed_test(struct timed_test *t)
-{
-	struct timespec tic, toc;
-
-	if (t->name == NULL || t->fp == NULL || t->input == NULL || t->output == NULL
-			|| t->expected == NULL || t->elem_size == 0)
-		return -1;
-
-#ifdef DBGPRINT
-	printf("\nBefore initialisation\n");
-	for (size_t i = 0; i < t->data_size/t->elem_size; i++)
-		printf("input[%lu]=%d\toutput[%lu]=%d\texpected[%lu]=%d\n",
-				i, t->input[i], i, t->output[i], i, t->expected[i]);
-#endif
-
-	fprintf(stderr, "Initialising test: %s\n", t->name);
-	memcpy(t->output, t->input, t->data_size);
-	fprintf(stderr, "Starting test: %s\n", t->name);
-
-#ifdef DBGPRINT
-	printf("\nAfter initialisation\n");
-	for (size_t i = 0; i < t->data_size/t->elem_size; i++)
-		printf("input[%lu]=%d\toutput[%lu]=%d\texpected[%lu]=%d\n",
-				i, t->input[i], i, t->output[i], i, t->expected[i]);
-#endif
-
-	clock_gettime(CLOCK_MONOTONIC, &tic);
-	t->fp(t->output, t->input_l, t->input_r);
-	clock_gettime(CLOCK_MONOTONIC, &toc);
-
-	timespec_diff(&toc, &tic, &t->time);
-	t->status = memcmp(t->expected, t->output, t->data_size);
-
-#ifdef DBGPRINT
-	printf("\nResult\n");
-	for (size_t i = 0; i < t->data_size/t->elem_size; i++)
-		printf("input[%lu]=%d\toutput[%lu]=%d\texpected[%lu]=%d\n",
-				i, t->input[i], i, t->output[i], i, t->expected[i]);
-#endif
-	return 0;
 }
 
 int main()
