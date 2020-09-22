@@ -17,10 +17,12 @@ int run_timed_test(struct timed_test *t)
 			t->elem_size == 0)
 		return -1;
 
+	t->clear_counters(t->fp);
+
 #ifdef DBGPRINT
-	printf("\nBefore initialisation\n");
+	fprintf(stderr, "\nBefore initialisation: %s\n", t->name);
 	for (size_t i = 0; i < t->data_size / t->elem_size; i++)
-		printf("input[%lu]=%d\toutput[%lu]=%d\texpected[%lu]=%d\n",
+		fprintf(stderr, "input[%zu]=%d\toutput[%zu]=%d\texpected[%zu]=%d\n",
 				i, t->input[i], i, ((int*) output)[i], i,
 				t->expected[i]);
 #endif
@@ -28,9 +30,9 @@ int run_timed_test(struct timed_test *t)
 	memcpy(output, t->input, t->data_size);
 
 #ifdef DBGPRINT
-	printf("\nAfter initialisation\n");
+	fprintf(stderr, "\nAfter initialisation: %s\n", t->name);
 	for (size_t i = 0; i < t->data_size / t->elem_size; i++)
-		printf("input[%lu]=%d\toutput[%lu]=%d\texpected[%lu]=%d\n",
+		fprintf(stderr, "input[%zu]=%d\toutput[%zu]=%d\texpected[%zu]=%d\n",
 				i, t->input[i], i, ((int*) output)[i], i,
 				t->expected[i]);
 #endif
@@ -43,12 +45,17 @@ int run_timed_test(struct timed_test *t)
 	timespec_diff(&toc, &tic, &t->time);
 	t->status = memcmp(t->expected, output, t->data_size);
 
+	t->cntrs = t->get_counters(t->fp);
+
 #ifdef DBGPRINT
-	printf("\nResult\n");
-	for (size_t i = 0; i < t->data_size/t->elem_size; i++)
-		printf("input[%lu]=%d\toutput[%lu]=%d\texpected[%lu]=%d\n",
-				i, t->input[i], i, ((int*) output)[i], i,
-				t->expected[i]);
+	fprintf(stderr, "\nResult: %s\n", t->name);
+	for (size_t i = 0; i < t->data_size/t->elem_size; i++) {
+		fprintf(stderr, "input[%zu]=%d\toutput[%zu]=%d\texpected[%zu]=%d",
+			i, t->input[i], i, ((int*) output)[i], i, t->expected[i]);
+		fprintf(stderr, " %s\n",
+			memcmp(&t->expected[i], &((int*) output)[i], t->elem_size) ?
+			"FAIL" : "");
+	}
 #endif
 	free(output);
 	output = NULL;

@@ -2,6 +2,13 @@
 #define BUBBLE_SORT_H
 
 #include <stddef.h>
+#include "counters.h"
+
+/* Clear the counters used by the fp function */
+void bubble_clear_counters(void (*fp)(void *, size_t, size_t));
+
+/* Get the counters used by the fp function */
+struct counters bubble_get_counters(void (*fp)(void *, size_t, size_t));
 
 /* Iterative bubble sort on array [l, r] */
 void bubble_sort(void *vin, size_t l, size_t r);
