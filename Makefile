@@ -16,9 +16,9 @@ MAPFILE := "output.map"
 DEBUG := -g
 OPTIMIZATION := -flto -O3 -fdata-sections -ffunction-sections -march=native \
 -Wl,--gc-sections -Wl,--print-gc-sections -Wl,--cref -Wl,-Map=$(MAPFILE)
-WARNINGS := -Wall -Wextra -pedantic -D_FORTIFY_SOURCE=1 -Wformat-overflow=2 \
+WARNINGS := -Wall -Wextra -D_FORTIFY_SOURCE=1 -Wformat-overflow=2 \
 -Wformat-security -Wformat-truncation=2
-OTHER := $(OPTIMIZATION) $(WARNINGS)
+OTHER := $(OPTIMIZATION) $(WARNINGS) -pipe
 CFLAGS := $(DEBUG) $(OTHER)
 
 LDFLAGS =

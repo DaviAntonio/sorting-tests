@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include "tester.h"
+#include "memory_manager.h"
 #include "selection_sort.h"
 #include "bubble_sort.h"
 #include "shell_sort.h"
@@ -12,123 +13,19 @@
 
 #define ITEMS_NUM (200000)
 
-struct timed_test {
-	char name[256];
-	void (*fp)(int *v, size_t l, size_t r);
-	int *input;
-	size_t input_l;
-	size_t input_r;
-	int *output;
-	int *expected;
-	size_t data_size;
-	size_t elem_size;
-	int status;
-	struct timespec time;
-};
-
-void timespec_diff(struct timespec *a, struct timespec *b, struct timespec *r)
-{
-	// from timersub macro on glibc/time/sys/time.h
-	r->tv_sec = a->tv_sec - b->tv_sec;
-	r->tv_nsec = a->tv_nsec - b->tv_nsec;
-	// tv_nsec counts the ns elapsed since the last second
-	if (r->tv_nsec < 0) {
-		--r->tv_sec;
-		r->tv_nsec += 1000000000L;
-	}
-}
-
-double timespecdiff(struct timespec *a, struct timespec *b)
-{
-	struct timespec r;
-	timespec_diff(a, b, &r);
-	return r.tv_sec + r.tv_nsec/1e9;
-}
-
-float timespecdiff_f(struct timespec *a, struct timespec *b)
-{
-	struct timespec r;
-	timespec_diff(a, b, &r);
-	return r.tv_sec + r.tv_nsec/1e9f;
-}
-
-
 int cmp_ints(const void *i1, const void *i2)
 {
 	return (*(int *)i1)-(*(int *)i2);
 }
 
-int allocate_int_arrays(int ***arr, size_t alen, size_t len)
-{
-	for (size_t i = 0; i < alen; i++) {
-		*arr[i] = calloc(sizeof(**arr), len);
-		if (*arr[i] == NULL)
-			return -1;
-	}
-	return 0;
-}
-
-void deallocate_int_arrays(int ***arr, size_t alen)
-{
-	for (size_t i = 0; i < alen; i++) {
-		if (*arr[i] != NULL) {
-			free(*arr[i]);
-			*arr[i] = NULL;
-		}
-	}
-}
-
-int run_timed_test(struct timed_test *t)
-{
-	struct timespec tic, toc;
-
-	if (t->name == NULL || t->fp == NULL || t->input == NULL || t->output == NULL
-			|| t->expected == NULL || t->elem_size == 0)
-		return -1;
-
-#ifdef DBGPRINT
-	printf("\nBefore initialisation\n");
-	for (size_t i = 0; i < t->data_size/t->elem_size; i++)
-		printf("input[%lu]=%d\toutput[%lu]=%d\texpected[%lu]=%d\n",
-				i, t->input[i], i, t->output[i], i, t->expected[i]);
-#endif
-
-	fprintf(stderr, "Initialising test: %s\n", t->name);
-	memcpy(t->output, t->input, t->data_size);
-	fprintf(stderr, "Starting test: %s\n", t->name);
-
-#ifdef DBGPRINT
-	printf("\nAfter initialisation\n");
-	for (size_t i = 0; i < t->data_size/t->elem_size; i++)
-		printf("input[%lu]=%d\toutput[%lu]=%d\texpected[%lu]=%d\n",
-				i, t->input[i], i, t->output[i], i, t->expected[i]);
-#endif
-
-	clock_gettime(CLOCK_MONOTONIC, &tic);
-	t->fp(t->output, t->input_l, t->input_r);
-	clock_gettime(CLOCK_MONOTONIC, &toc);
-
-	timespec_diff(&toc, &tic, &t->time);
-	t->status = memcmp(t->expected, t->output, t->data_size);
-
-#ifdef DBGPRINT
-	printf("\nResult\n");
-	for (size_t i = 0; i < t->data_size/t->elem_size; i++)
-		printf("input[%lu]=%d\toutput[%lu]=%d\texpected[%lu]=%d\n",
-				i, t->input[i], i, t->output[i], i, t->expected[i]);
-#endif
-	return 0;
-}
-
 int main()
 {
 	int *random_data = NULL;
+	int *expected = NULL;
 	int *ordered = NULL;
 	int *reverse = NULL;
-	int *recursive = NULL;
-	int *iterative = NULL;
 
-	int **arrays[] = {&random_data, &ordered, &reverse, &recursive, &iterative};
+	int **arrays[] = {&random_data, &expected, &ordered, &reverse};
 
 	// Allocate all
 	if (allocate_int_arrays(arrays, ARRAY_SIZE(arrays), ITEMS_NUM)) {
@@ -140,293 +37,476 @@ int main()
 	// Initialise random numbers
 	printf("generating %d numbers\n", ITEMS_NUM);
 	srand(0);
-	for (int i = 0; i < ITEMS_NUM; i++) {
+	for (size_t i = 0; i < ITEMS_NUM; i++) {
 		random_data[i] = rand();
 #ifdef DBGPRINT
-		printf("%d\n", random_data[i]);
+		fprintf(stderr, "random_data[%zu]=%d\n", i, random_data[i]);
 #endif
 	}
 
 	printf("initialising\n");
-	memcpy(ordered, random_data, sizeof(*ordered)*ITEMS_NUM);
+	memcpy(expected, random_data, sizeof(*expected) * ITEMS_NUM);
 
 	printf("sorting\n");
 	// sort the array using standard functions
-	qsort(ordered, ITEMS_NUM, sizeof(*ordered), cmp_ints);
+	qsort(expected, ITEMS_NUM, sizeof(*expected), cmp_ints);
+
+	// Copy to ordered array
+	memcpy(ordered, expected, sizeof(*ordered) * ITEMS_NUM);
 
 	printf("reversing\n");
 	// reverse the sorted array
-	for (int i = 0, j = ITEMS_NUM-1; i < ITEMS_NUM; i++, j--) {
-		reverse[i] = ordered[j];
+	for (size_t i = 0, j = ITEMS_NUM-1; i < ITEMS_NUM; i++, j--) {
+		reverse[i] = expected[j];
 #ifdef DBGPRINT
-		printf("%d\n", reverse[i]);
+		fprintf(stderr, "reverse[%zu]=%d\n", i, reverse[i]);
 #endif
 	}
 
 	struct timed_test tests[] = {
+		// Selection sort iterative
 		{
 			.name = "Selection Sort Iterative Random",
 			.fp = selection_sort,
+			.clear_counters = selection_clear_counters,
+			.get_counters = selection_get_counters,
 			.input = random_data,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*random_data)*ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.name = "Selection Sort Recursive Random",
-			.fp = selection_sort_rec,
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = recursive,
-			.expected = ordered,
-			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
 		},
 		{
 			.name = "Selection Sort Iterative Reverse",
 			.fp = selection_sort,
+			.clear_counters = selection_clear_counters,
+			.get_counters = selection_get_counters,
 			.input = reverse,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
 		},
 		{
+			.name = "Selection Sort Iterative Ordered",
+			.fp = selection_sort,
+			.clear_counters = selection_clear_counters,
+			.get_counters = selection_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// Selection sort recursive
+		{
+			.name = "Selection Sort Recursive Random",
+			.fp = selection_sort_rec,
+			.clear_counters = selection_clear_counters,
+			.get_counters = selection_get_counters,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+				{
 			.name = "Selection Sort Recursive Reverse",
 			.fp = selection_sort_rec,
+			.clear_counters = selection_clear_counters,
+			.get_counters = selection_get_counters,
 			.input = reverse,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = recursive,
-			.expected = ordered,
-			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
 		},
+		{
+			.name = "Selection Sort Recursive Ordered",
+			.fp = selection_sort_rec,
+			.clear_counters = selection_clear_counters,
+			.get_counters = selection_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// Bubble sort iterative
 		{
 			.name = "Bubble Sort Iterative Random",
 			.fp = bubble_sort,
+			.clear_counters = bubble_clear_counters,
+			.get_counters = bubble_get_counters,
 			.input = random_data,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
 		},
 		{
 			.name = "Bubble Sort Iterative Reverse",
 			.fp = bubble_sort,
+			.clear_counters = bubble_clear_counters,
+			.get_counters = bubble_get_counters,
 			.input = reverse,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
 		},
 		{
+			.name = "Bubble Sort Iterative Ordered",
+			.fp = bubble_sort,
+			.clear_counters = bubble_clear_counters,
+			.get_counters = bubble_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// Bubble sort recursive
+		{
 			.name = "Bubble Sort Recursive Random",
 			.fp = bubble_sort_rec,
+			.clear_counters = bubble_clear_counters,
+			.get_counters = bubble_get_counters,
 			.input = random_data,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
 		},
 		{
 			.name = "Bubble Sort Recursive Reverse",
 			.fp = bubble_sort_rec,
+			.clear_counters = bubble_clear_counters,
+			.get_counters = bubble_get_counters,
 			.input = reverse,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
 		},
 		{
+			.name = "Bubble Sort Recursive Ordered",
+			.fp = bubble_sort_rec,
+			.clear_counters = bubble_clear_counters,
+			.get_counters = bubble_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// Bubble sort iterative (no nested for loops)
+		{
 			.name = "Bubble Sort Iterative (no nested for loops) Random",
 			.fp = bubble_sort_optim,
+			.clear_counters = bubble_clear_counters,
+			.get_counters = bubble_get_counters,
 			.input = random_data,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
 		},
 		{
 			.name = "Bubble Sort Iterative (no nested for loops) Reverse",
 			.fp = bubble_sort_optim,
+			.clear_counters = bubble_clear_counters,
+			.get_counters = bubble_get_counters,
 			.input = reverse,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
 		},
 		{
+			.name = "Bubble Sort Iterative (no nested for loops) Ordered",
+			.fp = bubble_sort_optim,
+			.clear_counters = bubble_clear_counters,
+			.get_counters = bubble_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// Bubble sort optimised iterative
+		{
 			.name = "Bubble Sort Optimised Iterative Random",
 			.fp = bubble_sort_optim2,
+			.clear_counters = bubble_clear_counters,
+			.get_counters = bubble_get_counters,
 			.input = random_data,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
 		},
 		{
 			.name = "Bubble Sort Optimised Iterative Reverse",
 			.fp = bubble_sort_optim2,
+			.clear_counters = bubble_clear_counters,
+			.get_counters = bubble_get_counters,
 			.input = reverse,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
 		},
 		{
+			.name = "Bubble Sort Optimised Iterative Ordered",
+			.fp = bubble_sort_optim2,
+			.clear_counters = bubble_clear_counters,
+			.get_counters = bubble_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// Shell sort
+		{
 			.name = "Shell Sort Iterative (h=3*h+1) Random",
 			.fp = shell_sort,
+			.clear_counters = shell_clear_counters,
+			.get_counters = shell_get_counters,
 			.input = random_data,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
 		},
 		{
 			.name = "Shell Sort Iterative (h=3*h+1) Reverse",
 			.fp = shell_sort,
+			.clear_counters = shell_clear_counters,
+			.get_counters = shell_get_counters,
 			.input = reverse,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
 		},
 		{
+			.name = "Shell Sort Iterative (h=3*h+1) Ordered",
+			.fp = shell_sort,
+			.clear_counters = shell_clear_counters,
+			.get_counters = shell_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// Insertion sort iterative
+		{
 			.name = "Insertion Sort Iterative Random",
 			.fp = insertion_sort,
+			.clear_counters = insertion_clear_counters,
+			.get_counters = insertion_get_counters,
 			.input = random_data,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
 		},
 		{
 			.name = "Insertion Sort Iterative Reverse",
 			.fp = insertion_sort,
+			.clear_counters = insertion_clear_counters,
+			.get_counters = insertion_get_counters,
 			.input = reverse,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
 		},
 		{
+			.name = "Insertion Sort Iterative Ordered",
+			.fp = insertion_sort,
+			.clear_counters = insertion_clear_counters,
+			.get_counters = insertion_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// Insertion sort iterative (pivot)
+		{
 			.name = "Insertion Sort Iterative (pivot) Random",
 			.fp = insertion_sort_pivot,
+			.clear_counters = insertion_clear_counters,
+			.get_counters = insertion_get_counters,
 			.input = random_data,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
 		},
 		{
 			.name = "Insertion Sort Iterative (pivot) Reverse",
 			.fp = insertion_sort_pivot,
+			.clear_counters = insertion_clear_counters,
+			.get_counters = insertion_get_counters,
 			.input = reverse,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
 		},
 		{
+			.name = "Insertion Sort Iterative (pivot) Ordered",
+			.fp = insertion_sort_pivot,
+			.clear_counters = insertion_clear_counters,
+			.get_counters = insertion_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// Quicksort recursive
+		{
 			.name = "Quicksort Recursive Random",
 			.fp = quicksort,
+			.clear_counters = quick_clear_counters,
+			.get_counters = quick_get_counters,
 			.input = random_data,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
 		},
 		{
 			.name = "Quicksort Recursive Reverse",
 			.fp = quicksort,
+			.clear_counters = quick_clear_counters,
+			.get_counters = quick_get_counters,
 			.input = reverse,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
 		},
 		{
+			.name = "Quicksort Recursive Ordered",
+			.fp = quicksort,
+			.clear_counters = quick_clear_counters,
+			.get_counters = quick_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// Quicksort recursive (median 3)
+		{
 			.name = "Quicksort (Median 3) Recursive Random",
 			.fp = quicksort_median_3,
+			.clear_counters = quick_clear_counters,
+			.get_counters = quick_get_counters,
 			.input = random_data,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
 		},
 		{
 			.name = "Quicksort (Median 3) Recursive Reverse",
 			.fp = quicksort_median_3,
+			.clear_counters = quick_clear_counters,
+			.get_counters = quick_get_counters,
 			.input = reverse,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
 		},
 		{
+			.name = "Quicksort (Median 3) Recursive Ordered",
+			.fp = quicksort_median_3,
+			.clear_counters = quick_clear_counters,
+			.get_counters = quick_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// quicksort recursive (median 3 shortest tail)
+		{
 			.name = "Quicksort (Median 3 shortest tail) Recursive Random",
 			.fp = quicksort_median_3_short,
+			.clear_counters = quick_clear_counters,
+			.get_counters = quick_get_counters,
 			.input = random_data,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*random_data)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
 			.elem_size = sizeof(*random_data)
 		},
 		{
 			.name = "Quicksort (Median 3 shortest tail) Recursive Reverse",
 			.fp = quicksort_median_3_short,
+			.clear_counters = quick_clear_counters,
+			.get_counters = quick_get_counters,
 			.input = reverse,
 			.input_l = 0,
-			.input_r = ITEMS_NUM-1,
-			.output = iterative,
-			.expected = ordered,
-			.data_size = sizeof(*reverse)*ITEMS_NUM,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
 			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Quicksort (Median 3 shortest tail) Recursive Ordered",
+			.fp = quicksort_median_3_short,
+			.clear_counters = quick_clear_counters,
+			.get_counters = quick_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
 		}
 	};
 
@@ -439,9 +519,12 @@ int main()
 			fprintf(stderr, "Test failed with status: %d\n", status);
 		} else {
 			test_status = (tests[i].status) ? test_fail : test_success;
-			printf("%s (%f ms) %s\n", tests[i].name,
-					1e3f*(tests[i].time.tv_sec +
-					tests[i].time.tv_nsec/1e9f), test_status);
+			printf("%s (%f ms, %lu swaps, %lu comparisons, %lu calls) %s\n",
+				tests[i].name,
+				1e3f * (tests[i].time.tv_sec
+					+ tests[i].time.tv_nsec / 1e9f),
+				tests[i].cntrs.swps, tests[i].cntrs.cmps,
+				tests[i].cntrs.calls, test_status);
 		}
 	}
 
