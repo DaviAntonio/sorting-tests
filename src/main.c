@@ -8,6 +8,7 @@
 #include "shell_sort.h"
 #include "insertion_sort.h"
 #include "quicksort.h"
+#include "mergesort.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -501,6 +502,80 @@ int main()
 			.fp = quicksort_median_3_short,
 			.clear_counters = quick_clear_counters,
 			.get_counters = quick_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// mergesort recursive
+		{
+			.name = "Mergesort Recursive Random",
+			.fp = mergesort,
+			.clear_counters = merge_clear_counters,
+			.get_counters = merge_get_counters,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Mergesort Recursive Reverse",
+			.fp = mergesort,
+			.clear_counters = merge_clear_counters,
+			.get_counters = merge_get_counters,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Mergesort Recursive Ordered",
+			.fp = mergesort,
+			.clear_counters = merge_clear_counters,
+			.get_counters = merge_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
+		},
+		// mergesort iterative
+		{
+			.name = "Mergesort Iterative Random",
+			.fp = mergesort_i,
+			.clear_counters = merge_clear_counters,
+			.get_counters = merge_get_counters,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Mergesort Iterative Reverse",
+			.fp = mergesort_i,
+			.clear_counters = merge_clear_counters,
+			.get_counters = merge_get_counters,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Mergesort Iterative Ordered",
+			.fp = mergesort_i,
+			.clear_counters = merge_clear_counters,
+			.get_counters = merge_get_counters,
 			.input = ordered,
 			.input_l = 0,
 			.input_r = ITEMS_NUM - 1,
