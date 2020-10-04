@@ -545,8 +545,44 @@ int main()
 			.expected = expected,
 			.data_size = sizeof(*ordered) * ITEMS_NUM,
 			.elem_size = sizeof(*ordered)
+		},
+		// mergesort iterative
+		{
+			.name = "Mergesort Iterative Random",
+			.fp = mergesort_i,
+			.clear_counters = merge_clear_counters,
+			.get_counters = merge_get_counters,
+			.input = random_data,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
+			.elem_size = sizeof(*random_data)
+		},
+		{
+			.name = "Mergesort Iterative Reverse",
+			.fp = mergesort_i,
+			.clear_counters = merge_clear_counters,
+			.get_counters = merge_get_counters,
+			.input = reverse,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
+			.elem_size = sizeof(*reverse)
+		},
+		{
+			.name = "Mergesort Iterative Ordered",
+			.fp = mergesort_i,
+			.clear_counters = merge_clear_counters,
+			.get_counters = merge_get_counters,
+			.input = ordered,
+			.input_l = 0,
+			.input_r = ITEMS_NUM - 1,
+			.expected = expected,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered)
 		}
-
 	};
 
 	for (size_t i = 0; i < ARRAY_SIZE(tests); i++) {
