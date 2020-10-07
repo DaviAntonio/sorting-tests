@@ -5,7 +5,12 @@
 
 static struct counters cntrs;
 
-/* Gets timed test definitions */
+/** Clears the counters */
+static void bubblesort_iter_while_clear_counters();
+
+/** Gets the counters */
+static struct counters bubblesort_iter_while_get_counters();
+
 struct timed_test_defs bubblesort_iter_while_get_test_defs()
 {
 	return (struct timed_test_defs) {
@@ -18,12 +23,12 @@ struct timed_test_defs bubblesort_iter_while_get_test_defs()
 	};
 }
 
-void bubblesort_iter_while_clear_counters()
+static void bubblesort_iter_while_clear_counters()
 {
 	memset(&cntrs, 0, sizeof(cntrs));
 }
 
-struct counters bubblesort_iter_while_get_counters()
+static struct counters bubblesort_iter_while_get_counters()
 {
 	return cntrs;
 }

@@ -5,6 +5,12 @@
 
 static struct counters cntrs;
 
+/** Clears the counters */
+static void quicksort_rec_clear_counters();
+
+/** Gets the counters */
+static struct counters quicksort_rec_get_counters();
+
 struct timed_test_defs quicksort_rec_get_test_defs()
 {
 	return (struct timed_test_defs) {
@@ -17,13 +23,13 @@ struct timed_test_defs quicksort_rec_get_test_defs()
 	};
 }
 
-void quicksort_rec_clear_counters()
+static void quicksort_rec_clear_counters()
 {
 	memset(&cntrs, 0, sizeof(cntrs));
 	memset(&partition_cntrs, 0, sizeof(partition_cntrs));
 }
 
-struct counters quicksort_rec_get_counters()
+static struct counters quicksort_rec_get_counters()
 {
 	return add_counters(cntrs, partition_cntrs);
 }

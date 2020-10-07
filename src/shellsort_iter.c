@@ -5,6 +5,12 @@
 
 static struct counters cntrs;
 
+/** Clears the counters */
+static void shellsort_iter_clear_counters();
+
+/** Gets the counters */
+static struct counters shellsort_iter_get_counters();
+
 struct timed_test_defs shellsort_iter_get_test_defs()
 {
 	return (struct timed_test_defs) {
@@ -17,13 +23,13 @@ struct timed_test_defs shellsort_iter_get_test_defs()
 	};
 }
 
-void shellsort_iter_clear_counters()
+static void shellsort_iter_clear_counters()
 {
 	memset(&insertionsort_h_cntrs, 0, sizeof(insertionsort_h_cntrs));
 	memset(&cntrs, 0, sizeof(cntrs));
 }
 
-struct counters shellsort_iter_get_counters()
+static struct counters shellsort_iter_get_counters()
 {
 	return add_counters(cntrs, insertionsort_h_cntrs);
 }

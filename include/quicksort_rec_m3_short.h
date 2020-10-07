@@ -8,12 +8,6 @@
 /* Gets timed test definitions */
 struct timed_test_defs quicksort_rec_m3_short_get_test_defs();
 
-/* Clear the counters */
-void quicksort_rec_m3_short_clear_counters();
-
-/* Get the counters */
-struct counters quicksort_rec_m3_short_get_counters();
-
 /* Median of 3 quicksort with shortest tail optimisation on array [l, r] */
 void quicksort_rec_m3_short(void *vin, size_t l, size_t r);
 

@@ -8,13 +8,6 @@
 /* Gets timed test definitions */
 struct timed_test_defs bubblesort_iter_while_get_test_defs();
 
-/* Clear the counters */
-void bubblesort_iter_while_clear_counters();
-
-/* Get the counters */
-struct counters bubblesort_iter_while_get_counters();
-
-
 /* Iterative optimised bubble sort on array [l, r]
  * The nested for loops are replaced by one for one loop and a while loop with
  * a flag */
