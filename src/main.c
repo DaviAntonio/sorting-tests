@@ -16,7 +16,7 @@
 
 int cmp_ints(const void *i1, const void *i2)
 {
-	return (*(int *)i1)-(*(int *)i2);
+	return (*(int *)i1) - (*(int *)i2);
 }
 
 int main()
@@ -64,444 +64,118 @@ int main()
 #endif
 	}
 
-	struct timed_test tests[] = {
+	struct timed_test *tests = NULL;
+	size_t tests_len = 0;
+
+	struct timed_test_input inputs[] = {
+		{
+			.descr = "Random",
+			.input = random_data,
+			.data_size = sizeof(*random_data) * ITEMS_NUM,
+			.elem_size = sizeof(*random_data),
+		},
+		{
+			.descr = "Reverse",
+			.input = reverse,
+			.data_size = sizeof(*reverse) * ITEMS_NUM,
+			.elem_size = sizeof(*reverse),
+		},
+		{
+			.descr = "Ordered",
+			.input = ordered,
+			.data_size = sizeof(*ordered) * ITEMS_NUM,
+			.elem_size = sizeof(*ordered),
+		}
+	};
+
+	for (size_t i = 0; i < ARRAY_SIZE(inputs); i++) {
+		inputs[i].input_l = 0;
+		inputs[i].input_r = ITEMS_NUM - 1;
+	}
+
+	struct timed_test to_test[] = {
 		// Selection sort iterative
 		{
 			.defs = selectionsort_iter_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = selectionsort_iter_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = selectionsort_iter_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// Selection sort recursive
 		{
 			.defs = selectionsort_rec_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = selectionsort_rec_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = selectionsort_rec_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// Bubble sort iterative
 		{
 			.defs = bubblesort_iter_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = bubblesort_iter_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = bubblesort_iter_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// Bubble sort recursive
 		{
 			.defs = bubblesort_rec_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = bubblesort_rec_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = bubblesort_rec_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// Bubble sort iterative (no nested for loops)
 		{
 			.defs = bubblesort_iter_while_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = bubblesort_iter_while_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = bubblesort_iter_while_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// Bubble sort optimised iterative
 		{
 			.defs = bubblesort_iter_skip_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = bubblesort_iter_skip_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = bubblesort_iter_skip_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// Shell sort
 		{
 			.defs = shellsort_iter_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = shellsort_iter_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = shellsort_iter_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// Insertion sort iterative
 		{
 			.defs = insertionsort_iter_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = insertionsort_iter_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = insertionsort_iter_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// Insertion sort iterative (pivot)
 		{
 			.defs = insertionsort_iter_pivot_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = insertionsort_iter_pivot_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = insertionsort_iter_pivot_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// Quicksort recursive
 		{
 			.defs = quicksort_rec_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = quicksort_rec_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = quicksort_rec_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// Quicksort recursive (median 3)
 		{
 			.defs = quicksort_rec_m3_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = quicksort_rec_m3_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = quicksort_rec_m3_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// quicksort recursive (median 3 shortest tail)
 		{
 			.defs = quicksort_rec_m3_short_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = quicksort_rec_m3_short_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = quicksort_rec_m3_short_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// mergesort recursive
 		{
 			.defs = mergesort_rec_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = mergesort_rec_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = mergesort_rec_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		},
 		// mergesort iterative
 		{
 			.defs = mergesort_iter_get_test_defs(),
-			.input_descr = "Random",
-			.input = random_data,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
 			.expected = expected,
-			.data_size = sizeof(*random_data) * ITEMS_NUM,
-			.elem_size = sizeof(*random_data)
-		},
-		{
-			.defs = mergesort_iter_get_test_defs(),
-			.input_descr = "Reverse",
-			.input = reverse,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*reverse) * ITEMS_NUM,
-			.elem_size = sizeof(*reverse)
-		},
-		{
-			.defs = mergesort_iter_get_test_defs(),
-			.input_descr = "Ordered",
-			.input = ordered,
-			.input_l = 0,
-			.input_r = ITEMS_NUM - 1,
-			.expected = expected,
-			.data_size = sizeof(*ordered) * ITEMS_NUM,
-			.elem_size = sizeof(*ordered)
 		}
 	};
 
-	for (size_t i = 0; i < ARRAY_SIZE(tests); i++) {
+	int build_result = build_timed_tests(to_test, ARRAY_SIZE(to_test), inputs,
+			ARRAY_SIZE(inputs), &tests, &tests_len);
+
+	if (build_result) {
+		fprintf(stderr, "build_timed_tests returned %d\n", build_result);
+		fprintf(stderr, "Failed to build tests\n");
+		return -1;
+	}
+
+	for (size_t i = 0; i < tests_len; i++) {
 		int result = run_timed_test(&tests[i]);
 		char test_success[] = "OK";
 		char test_fail[] = "FAIL";
@@ -521,6 +195,7 @@ int main()
 		}
 	}
 
+	free(tests);
 	deallocate_int_arrays(arrays, ARRAY_SIZE(arrays));
 
 	return 0;
